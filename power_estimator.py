@@ -8,6 +8,7 @@ from power_modifyer.acceleration_modifyer import AccelerationModifyer
 from power_modifyer.elevation_modifyer import ElevationModifyer
 from power_modifyer.drag_modifyer import DragModifyer
 from power_modifyer.rolling_force_modifyer import RollingForceModifyer
+from power_modifyer.drivetrain_efficency_modifyer import DragtrainEfficencyModifyer
 
 # Filters
 from gps_data.data_filter import GpsDataFilter
@@ -20,11 +21,10 @@ import plotly.graph_objects as go
 
 
 def main():
-    sys.argv.append("Drevviken1.gpx")
-    sys.argv.append("91")
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
+    arg_parser.add_argument("drivetrain_efficiency", help="Efficency of the drivetrain, typicall 0.95", type=float)
     args = arg_parser.parse_args()
 
     # Load gps data
@@ -42,7 +42,8 @@ def main():
         AccelerationModifyer(args.mass),
         ElevationModifyer(args.mass),
         DragModifyer(cwa=0.6),
-        RollingForceModifyer(cr=0.007, mass_kg=args.mass)
+        RollingForceModifyer(cr=0.007, mass_kg=args.mass),
+        DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]
 
     # Apply modifyers
@@ -60,6 +61,16 @@ def main():
 
     avg_power = sum([p.power if p.power>0 else 0 for p in points])/len(points)
     print(f"AVG power: {avg_power}w")
+
+    # Total burened energy
+    energy = 0
+    for l, n in zip(points[:-1], points[1:]):
+        if(not l.power>0):
+            continue
+        e = l.power * 2
+        energy += e
+    energy /= 4200
+    print(f"Total burned energy: {energy} kcal")
 
 
 if __name__ == "__main__":
