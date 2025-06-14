@@ -17,10 +17,15 @@ from typing import List
 import plotly.graph_objects as go
 import folium
 import webbrowser
-
+import numpy as np
 
 def create_power_map_folium(points):
-    m = folium.Map(location=[points[0].latitude, points[0].longitude], zoom_start=15, tiles='OpenStreetMap')
+    if (len(points)==0):
+        return
+    
+    center_latitide = np.average([p.latitude for p in points]) 
+    center_longitude = np.average([p.longitude for p in points]) 
+    m = folium.Map(location=[center_latitide, center_longitude], zoom_start=15, tiles='OpenStreetMap')
     folium.ColorLine(
         positions=[(p.latitude, p.longitude) for p in points],
         colors=[p.power if p.power>0 else 0 for p in points],
@@ -54,7 +59,6 @@ def main():
     for filter in filters:
         filter.apply_filter(points=points)
 
-
     modifyers: List[PowerModifyer] = [
         AccelerationModifyer(args.mass),
         ElevationModifyer(args.mass),
@@ -67,7 +71,7 @@ def main():
     for modifyer in modifyers:
         modifyer.modify_power_at_points(points)
 
-    # Draw graph
+    # Draw graphs
     fig = go.Figure(data=[
         go.Scatter(
             x=[p.time for p in points], 
@@ -76,21 +80,15 @@ def main():
         )
     fig.show()
 
-    ### DRAW MAP
     create_power_map_folium(points=points)
 
+    # Calculate and print stats
     avg_power = sum([p.power if p.power>0 else 0 for p in points])/len(points)
-    print(f"AVG power: {avg_power}w")
-
-    # Total burened energy
-    energy = 0
-    for l, n in zip(points[:-1], points[1:]):
-        if(not l.power>0):
-            continue
-        e = l.power * 2
-        energy += e
-    energy /= 4200
-    print(f"Total burned energy: {energy} kcal")
+    print(f"AVG power: {avg_power:.0f} w")
+    
+    energy_joule = sum(l.power * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
+    energy_kcal = energy_joule/4184
+    print(f"Total burned energy: {energy_kcal:.0f} kcal")
 
 
 if __name__ == "__main__":
