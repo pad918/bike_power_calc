@@ -4,6 +4,7 @@
 * Create a graph over you power output
 * Calculate avrage power output
 * Calculate total burened energy (in kcal)
+* Display power data on an interactive map
 
 ## How to run
 Install all dependencies with:
@@ -13,5 +14,5 @@ Then run with:
 ```uv run power_estimator.py <filename> <mass in kg (including bike and rider)>```
 
 ## Not implemented
-* Other file formats
-* 
+* Other GPS formats than gpx
+* Web interface
