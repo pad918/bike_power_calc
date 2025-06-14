@@ -1,5 +1,6 @@
 from helpers.ranges import OpenRange
 import datetime
+from geopy.distance import geodesic, great_circle
 
 class GpsDataPoint:
     
@@ -8,7 +9,11 @@ class GpsDataPoint:
         self.latitude = latitude
         self.altitude = altitude
         self.speed = speed
-        self.time = time 
+        self.time = time
+        self.power = 0
+
+    def meter_distance_to(self, other):
+        return geodesic((self.latitude, self.longitude), (other.latitude, other.longitude)).m
 
     # Define getters / setters
     @property
@@ -60,3 +65,11 @@ class GpsDataPoint:
         if(not type(val) == datetime.datetime):
             raise BaseException(f"Can only set time to time type, not: {type(val)}")
         self._time = val
+
+    @property
+    def power(self):
+        return self._power
+    
+    @power.setter
+    def power(self, val):
+        self._power = val

@@ -7,11 +7,8 @@ class PowerModifyer(ABC):
     
     def __init__(self):
         pass
-
-    def modify_power_at_points(self, points):
-        for point in points:
-            self.modify_point_power(point)
-
+    
     @abstractmethod
-    def modify_point_power(self, point):
+    def modify_power_at_points(self, points):
         pass
+

@@ -7,10 +7,14 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "geopy" },
+    { name = "plotly" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "geopy", specifier = ">=2.4.1" }]
+requires-dist = [
+    { name = "geopy", specifier = ">=2.4.1" },
+    { name = "plotly", specifier = ">=6.1.2" },
+]
 
 [[package]]
 name = "geographiclib"
@@ -31,4 +35,35 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/0e/fd/ef6d53875ceab72c1fad22dbed5ec1ad04eb378c2251a6a8024bad890c3b/geopy-2.4.1.tar.gz", hash = "sha256:50283d8e7ad07d89be5cb027338c6365a32044df3ae2556ad3f52f4840b3d0d1", size = 117625 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e5/15/cf2a69ade4b194aa524ac75112d5caac37414b20a3a03e6865dfe0bd1539/geopy-2.4.1-py3-none-any.whl", hash = "sha256:ae8b4bc5c1131820f4d75fce9d4aaaca0c85189b3aa5d64c3dcaf5e3b7b882a7", size = 125437 },
+]
+
+[[package]]
+name = "narwhals"
+version = "1.42.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/d6/168a787b7800d6c89846b791e4f5ee6b94998a80c8c2838a019d3d71984d/narwhals-1.42.1.tar.gz", hash = "sha256:50a5635b11aeda98cf9c37e839fd34b0a24159f59a4dfae930290ad698320494", size = 492865 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/3f/8d450588206b437dd239a6d44230c63095e71135bd95d5a74347d07adbd5/narwhals-1.42.1-py3-none-any.whl", hash = "sha256:7a270d44b94ccdb277a799ae890c42e8504c537c1849f195eb14717c6184977a", size = 359888 },
+]
+
+[[package]]
+name = "packaging"
+version = "25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469 },
+]
+
+[[package]]
+name = "plotly"
+version = "6.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ae/77/431447616eda6a432dc3ce541b3f808ecb8803ea3d4ab2573b67f8eb4208/plotly-6.1.2.tar.gz", hash = "sha256:4fdaa228926ba3e3a213f4d1713287e69dcad1a7e66cf2025bd7d7026d5014b4", size = 7662971 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bf/6f/759d5da0517547a5d38aabf05d04d9f8adf83391d2c7fc33f904417d3ba2/plotly-6.1.2-py3-none-any.whl", hash = "sha256:f1548a8ed9158d59e03d7fed548c7db5549f3130d9ae19293c8638c202648f6d", size = 16265530 },
 ]

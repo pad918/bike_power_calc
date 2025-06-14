@@ -2,7 +2,7 @@ from gps_data.gps_data_loader import GPSDataLoader
 from gps_data.gps_data_point import GpsDataPoint
 import xml.etree.ElementTree as ET
 import datetime
-from geopy.distance import geodesic, great_circle
+
 
 class GPXLoader(GPSDataLoader):
 
@@ -33,8 +33,9 @@ class GPXLoader(GPSDataLoader):
         # Update speed of all points
         for lp, np in zip(points[:-1], points[1:]):
             # Calculate avg speed between the two points
-            dist_meters = geodesic((lp.latitude, lp.longitude), (np.latitude, np.longitude)).m
+            dist_meters = lp.meter_distance_to(np)
             delta_time:datetime.datetime = (np.time-lp.time).total_seconds()
-            avg_speed = dist_meters / delta_time if delta_time>0 else 0
-            lp.speed = avg_speed
+            avg_speed_mps = dist_meters / delta_time if delta_time>0 else 0
+            lp.speed = avg_speed_mps
+            
         return points
