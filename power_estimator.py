@@ -24,7 +24,11 @@ def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
-    arg_parser.add_argument("drivetrain_efficiency", help="Efficency of the drivetrain, typicall 0.95", type=float)
+    arg_parser.add_argument("--drivetrain_efficiency", 
+                            help="Efficency of the drivetrain, typicall 0.95", 
+                            type=float,
+                            default=0.95,
+                            required=False)
     args = arg_parser.parse_args()
 
     # Load gps data
