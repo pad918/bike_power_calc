@@ -1,5 +1,4 @@
 import argparse
-import sys
 from gps_data.gpx_loader import GPXLoader
 
 # Power modifyers
@@ -14,11 +13,25 @@ from power_modifyer.drivetrain_efficency_modifyer import DragtrainEfficencyModif
 from gps_data.data_filter import GpsDataFilter
 from gps_data.gps_data_lowpass_filter import GpsDataLowpassFilter
 
-
 from typing import List
-import datetime
 import plotly.graph_objects as go
+import folium
+import webbrowser
 
+
+def create_power_map_folium(points):
+    m = folium.Map(location=[points[0].latitude, points[0].longitude], zoom_start=15, tiles='OpenStreetMap')
+    folium.ColorLine(
+        positions=[(p.latitude, p.longitude) for p in points],
+        colors=[p.power if p.power>0 else 0 for p in points],
+        colormap=["b", "y", "r"],   
+        weight=5,        
+        opacity=0.7      
+    ).add_to(m)
+
+    output_html_file = "tmp.html"
+    m.save(output_html_file)
+    webbrowser.open(output_html_file)
 
 def main():
     arg_parser = argparse.ArgumentParser()
@@ -62,6 +75,9 @@ def main():
             ]
         )
     fig.show()
+
+    ### DRAW MAP
+    create_power_map_folium(points=points)
 
     avg_power = sum([p.power if p.power>0 else 0 for p in points])/len(points)
     print(f"AVG power: {avg_power}w")
