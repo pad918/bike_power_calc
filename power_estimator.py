@@ -3,6 +3,8 @@ import sys
 from gps_data.gpx_loader import GPXLoader
 from power_modifyer.power_modifyer import PowerModifyer
 from power_modifyer.acceleration_modifyer import AccelerationModifyer
+from power_modifyer.elevation_modifyer import ElevationModifyer
+from power_modifyer.drag_modifyer import DragModifyer
 from typing import List
 import datetime
 import plotly.graph_objects as go
@@ -10,16 +12,19 @@ import plotly.graph_objects as go
 
 def main():
     sys.argv.append("Drevviken1.gpx")
+    sys.argv.append("91")
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
-    arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg")
+    arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
     args = arg_parser.parse_args()
 
     # Load gps data
     points = GPXLoader(args.filename).load()
     
     modifyers: List[PowerModifyer] = [
-        AccelerationModifyer(args.mass)
+        #AccelerationModifyer(args.mass),
+        ElevationModifyer(args.mass),
+        #DragModifyer(cwa=0.6)
     ]
 
     # Apply modifyers
