@@ -86,7 +86,7 @@ def main():
     avg_power = sum([p.power if p.power>0 else 0 for p in points])/len(points)
     print(f"AVG power: {avg_power:.0f} w")
     
-    energy_joule = sum(l.power * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
+    energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
     energy_kcal = energy_joule/4184
     print(f"Total burned energy: {energy_kcal:.0f} kcal")
 
