@@ -7,6 +7,7 @@ from power_modifyer.power_modifyer import PowerModifyer
 from power_modifyer.acceleration_modifyer import AccelerationModifyer
 from power_modifyer.elevation_modifyer import ElevationModifyer
 from power_modifyer.drag_modifyer import DragModifyer
+from power_modifyer.rolling_force_modifyer import RollingForceModifyer
 
 # Filters
 from gps_data.data_filter import GpsDataFilter
@@ -40,7 +41,8 @@ def main():
     modifyers: List[PowerModifyer] = [
         AccelerationModifyer(args.mass),
         ElevationModifyer(args.mass),
-        DragModifyer(cwa=0.6)
+        DragModifyer(cwa=0.6),
+        RollingForceModifyer(cr=0.007, mass_kg=args.mass)
     ]
 
     # Apply modifyers
