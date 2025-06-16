@@ -3,16 +3,11 @@ from gps_data.gpx_loader import GPXLoader
 from gps_data.gps_data_points import GpsDataPoints
 
 # Power modifyers
-from power_modifyer.power_modifyer import PowerModifyer
-from power_modifyer.acceleration_modifyer import AccelerationModifyer
-from power_modifyer.elevation_modifyer import ElevationModifyer
-from power_modifyer.drag_modifyer import DragModifyer
-from power_modifyer.rolling_force_modifyer import RollingForceModifyer
-from power_modifyer.drivetrain_efficency_modifyer import DragtrainEfficencyModifyer
+import power_modifyer as Power
 
 # Filters
-from gps_data.data_filter import GpsDataFilter
-from gps_data.gps_data_lowpass_filter import GpsDataLowpassFilter
+from gps_data import GpsDataFilter
+from gps_data import GpsDataLowpassFilter
 
 from typing import List
 import plotly.graph_objects as go
@@ -61,12 +56,12 @@ def main():
     for filter in filters:
         filter.apply_filter(points=points)
 
-    modifyers: List[PowerModifyer] = [
-        AccelerationModifyer(args.mass),
-        ElevationModifyer(args.mass),
-        DragModifyer(cwa=0.6, use_weather_data=False),
-        RollingForceModifyer(cr=0.007, mass_kg=args.mass),
-        DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
+    modifyers: List[Power.PowerModifyer] = [
+        Power.AccelerationModifyer(args.mass),
+        Power.ElevationModifyer(args.mass),
+        Power.DragModifyer(cwa=0.6, use_weather_data=False),
+        Power.RollingForceModifyer(cr=0.007, mass_kg=args.mass),
+        Power.DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]
 
     # Apply modifyers
