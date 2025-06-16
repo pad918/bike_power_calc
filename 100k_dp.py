@@ -1,4 +1,5 @@
 from gps_data.gpx_loader import GPXLoader
+from gps_data.gps_data_points import GpsDataPoints
 
 # Power modifyers
 from power_modifyer.power_modifyer import PowerModifyer
@@ -17,7 +18,7 @@ import plotly.graph_objects as go
 import numpy as np
 import time
 
-#   Original : 0.20s or so
+#   Original : 0.01s or so
 #
 #
 #
@@ -25,14 +26,18 @@ import time
 
 def main():
     # Start time measurment
-    start = time.time()
+    
 
     MASS = 100 #kg
     DRIVETRAIN_EFF = 0.95
 
     # Load gps data
-    points = GPXLoader("Drevviken1.gpx").load()
-    
+    points_list = GPXLoader("Drevviken1.gpx").load()
+
+    start = time.time()
+
+    points = GpsDataPoints(points_list)
+
     # Apply filters to data
     filters: List[GpsDataFilter] = [
         GpsDataLowpassFilter()

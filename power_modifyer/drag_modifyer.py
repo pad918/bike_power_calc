@@ -19,7 +19,7 @@ class DragModifyer(PowerModifyer):
         # Assumes that the weather was constant during the trip, TODO fix this
 
         # Get wind data
-        if(self._use_weather_data and len(points)>0):
+        if(self._use_weather_data):
             location = Point(points[0].latitude, points[0].longitude, points[0].altitude)
             start:datetime.datetime = points[0].time
             
@@ -42,10 +42,10 @@ class DragModifyer(PowerModifyer):
             wind_angle = data["wdir"][0]
             wind_avg_speed_kmph = data["wspd"][0]
             wing_avg_speed_mps = wind_avg_speed_kmph / 3.6
-            
-        for p in points:
-            r = 1.2 # kg/m3
-            wind_v = p.speed # Assume no wind
-            drag_force = r*self._cwa*wind_v**2*0.5
-            drag_power = drag_force * p.speed
-            p.power += drag_power
+        
+        # Apply modifyer
+        r = 1.2 # kg/m3
+        wind_v = points.speed # Assume no wind
+        drag_force = r*self._cwa*wind_v**2*0.5
+        drag_power = drag_force * points.speed
+        points.power += drag_power

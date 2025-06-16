@@ -1,6 +1,7 @@
 from power_modifyer.power_modifyer import PowerModifyer
-from gps_data.gps_data_point import GpsDataPoint
+from gps_data.gps_data_points import GpsDataPoints
 import datetime
+import numpy as np
 
 #   Power modifyer that takes into account
 #   the power needed to accelerate between 
@@ -15,16 +16,11 @@ class AccelerationModifyer(PowerModifyer):
     def get_kinetic_energy_at_speed(self, speed_mps):
         return 0.5 * self._mass_kg * speed_mps**2
 
-    def modify_power_at_points(self, points):
-        for lp, np in zip(points[:-1], points[1:]):
-            lp_energy = self.get_kinetic_energy_at_speed(lp.speed)
-            np_energy = self.get_kinetic_energy_at_speed(np.speed)
-            delta_energy = np_energy - lp_energy
-
-            # Convert to avrage power
-            time_delta = (np.time-lp.time).total_seconds()
-
-            # Avg joules per second (Watts)
-            avg_power = delta_energy / time_delta
-
-            lp.power += avg_power
+    def modify_power_at_points(self, points:GpsDataPoints):
+        energies = 0.5 * self._mass_kg * points.speed**2
+        delta_energies = energies[1:] - energies[:-1]
+        delta_times = points.time[1:] - points.time[:-1]
+        delta_time_seconds = delta_times / np.timedelta64(1, 's')
+        powers = delta_energies / delta_time_seconds
+        # Add the power needed at each point
+        points.power[:-1] += powers 

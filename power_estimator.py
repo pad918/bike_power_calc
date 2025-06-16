@@ -1,5 +1,6 @@
 import argparse
 from gps_data.gpx_loader import GPXLoader
+from gps_data.gps_data_points import GpsDataPoints
 
 # Power modifyers
 from power_modifyer.power_modifyer import PowerModifyer
@@ -19,19 +20,18 @@ import folium
 import webbrowser
 import numpy as np
 
-def create_power_map_folium(points):
-    if (len(points)==0):
+def create_power_map_folium(points:GpsDataPoints):
+    if (len(points.power)==0):
         return
     
-    center_latitide = np.average([p.latitude for p in points]) 
-    center_longitude = np.average([p.longitude for p in points]) 
-    m = folium.Map(location=[center_latitide, center_longitude], zoom_start=15, tiles='OpenStreetMap')
+    center_latitide = np.average(points.latitude) 
+    center_longitude = np.average(points.longitude) 
+    m = folium.Map(location=[center_latitide, center_longitude], zoom_start=13, tiles='OpenStreetMap')
     folium.ColorLine(
-        positions=[(p.latitude, p.longitude) for p in points],
-        colors=np.clip([p.power for p in points], 0, 400), # Clip to make colors stand out more
+        positions=list(zip(points.latitude, points.longitude)),
+        colors=np.clip(points.power, 0, 400), # Clip to make colors stand out more
         colormap=["b", "y", "r"],   
-        #colormap=["black", "white"],   
-        weight=10,        
+        weight=8,        
         opacity=0.7      
     ).add_to(m)
 
@@ -52,8 +52,8 @@ def main():
     args = arg_parser.parse_args()
 
     # Load gps data
-    points = GPXLoader(args.filename).load()
-    
+    points = GpsDataPoints(GPXLoader(args.filename).load())
+
     # Apply filters to data
     filters: List[GpsDataFilter] = [
         GpsDataLowpassFilter()
@@ -64,7 +64,7 @@ def main():
     modifyers: List[PowerModifyer] = [
         AccelerationModifyer(args.mass),
         ElevationModifyer(args.mass),
-        DragModifyer(cwa=0.6, use_weather_data=True),
+        DragModifyer(cwa=0.6, use_weather_data=False),
         RollingForceModifyer(cr=0.007, mass_kg=args.mass),
         DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]
@@ -76,8 +76,8 @@ def main():
     # Draw graphs
     fig = go.Figure(data=[
         go.Scatter(
-            x=[p.time for p in points], 
-            y=[p.power for p in points])
+            x=points.time, 
+            y=np.maximum(points.power, 0))
             ]
         )
     fig.show()
@@ -85,10 +85,11 @@ def main():
     create_power_map_folium(points=points)
 
     # Calculate and print stats
-    avg_power = sum([p.power if p.power>0 else 0 for p in points])/len(points)
+    avg_power = np.average(np.maximum(points.power, 0))
     print(f"AVG power: {avg_power:.0f} w")
     
-    energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
+    #energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
+    energy_joule = np.sum(np.clip(points.power[:-1], 0, 10000) * ((points.time[1:]-points.time[:-1])/np.timedelta64(1, 's')))
     energy_kcal = energy_joule/4184
     print(f"Total burned energy: {energy_kcal:.0f} kcal")
 

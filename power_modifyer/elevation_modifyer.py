@@ -1,32 +1,26 @@
 from power_modifyer.power_modifyer import PowerModifyer
-from gps_data.gps_data_point import GpsDataPoint
-
+from gps_data.gps_data_points import GpsDataPoints
+import numpy as np
 
 #   Power modifyer that takes into account for
 #   elevation changes
 
 class ElevationModifyer(PowerModifyer):
 
-    
-
     # Mass of the bike + rider
     def __init__(self, mass_kg):
         self._mass_kg = mass_kg
         self._GRAVITATIONAL_CONSTANT = 9.8 # m/s^2
 
-    def get_kinetic_energy_at_point(self, point:GpsDataPoint):
+    def get_kinetic_energy_at_point(self, point:GpsDataPoints):
         return self._GRAVITATIONAL_CONSTANT * self._mass_kg * point.altitude
 
-    def modify_power_at_points(self, points):
-        for lp, np in zip(points[:-1], points[1:]):
-            lp_energy = self.get_kinetic_energy_at_point(lp)
-            np_energy = self.get_kinetic_energy_at_point(np)
-            delta_energy = np_energy - lp_energy
-
-            # Convert to avrage power
-            time_delta = (np.time-lp.time).total_seconds()
-
-            # Avg joules per second (Watts)
-            avg_power = delta_energy / time_delta
-
-            lp.power += avg_power
+    def modify_power_at_points(self, points:GpsDataPoints):
+        gravitational_energies = self._GRAVITATIONAL_CONSTANT * self._mass_kg * points.altitude
+        delta_energies =  gravitational_energies[1:] - gravitational_energies[:-1]
+        delta_times = points.time[1:] - points.time[:-1]
+        delta_time_seconds = delta_times / np.timedelta64(1, 's')
+        powers = delta_energies / delta_time_seconds
+        
+        # Add the power needed at each point
+        points.power[:-1] += powers 
