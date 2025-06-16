@@ -1,7 +1,7 @@
 # Make all modifyers accessible
-from acceleration_modifyer import AccelerationModifyer
-from drag_modifyer import DragModifyer
-from drivetrain_efficency_modifyer import DragtrainEfficencyModifyer
-from elevation_modifyer import ElevationModifyer
-from rolling_force_modifyer import RollingForceModifyer
+from .acceleration_modifyer import AccelerationModifyer
+from .drag_modifyer import DragModifyer
+from .drivetrain_efficency_modifyer import DragtrainEfficencyModifyer
+from .elevation_modifyer import ElevationModifyer
+from .rolling_force_modifyer import RollingForceModifyer
 from power_modifyer.power_modifyer import PowerModifyer
