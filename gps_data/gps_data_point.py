@@ -1,6 +1,6 @@
 from helpers.ranges import OpenRange
 import datetime
-from geopy.distance import geodesic, great_circle
+from geopy.distance import geodesic
 from geopy.point import Point
 
 class GpsDataPoint:
