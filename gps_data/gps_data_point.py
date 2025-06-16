@@ -1,6 +1,7 @@
 from helpers.ranges import OpenRange
 import datetime
 from geopy.distance import geodesic, great_circle
+from geopy.point import Point
 
 class GpsDataPoint:
     
@@ -15,6 +16,11 @@ class GpsDataPoint:
     def meter_distance_to(self, other):
         return geodesic((self.latitude, self.longitude), (other.latitude, other.longitude)).m
 
+    def get_bearing_to(self, other):
+        p1 = Point(self.latitude, self.longitude)
+        p2 = Point(other.latitude, other.longitude)
+        return geodesic(p1, p2).initial_bearing
+    
     # Define getters / setters
     @property
     def longitude(self):

@@ -28,9 +28,10 @@ def create_power_map_folium(points):
     m = folium.Map(location=[center_latitide, center_longitude], zoom_start=15, tiles='OpenStreetMap')
     folium.ColorLine(
         positions=[(p.latitude, p.longitude) for p in points],
-        colors=[p.power if p.power>0 else 0 for p in points],
+        colors=np.clip([p.power for p in points], 0, 400), # Clip to make colors stand out more
         colormap=["b", "y", "r"],   
-        weight=5,        
+        #colormap=["black", "white"],   
+        weight=10,        
         opacity=0.7      
     ).add_to(m)
 
@@ -39,6 +40,7 @@ def create_power_map_folium(points):
     webbrowser.open(output_html_file)
 
 def main():
+    import sys
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
@@ -62,7 +64,7 @@ def main():
     modifyers: List[PowerModifyer] = [
         AccelerationModifyer(args.mass),
         ElevationModifyer(args.mass),
-        DragModifyer(cwa=0.6),
+        DragModifyer(cwa=0.6, use_weather_data=True),
         RollingForceModifyer(cr=0.007, mass_kg=args.mass),
         DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]

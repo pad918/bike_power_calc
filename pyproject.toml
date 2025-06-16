@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "folium>=0.19.7",
     "geopy>=2.4.1",
+    "meteostat>=1.7.1",
     "numpy>=2.3.0",
     "pandas>=2.3.0",
     "plotly>=6.1.2",
