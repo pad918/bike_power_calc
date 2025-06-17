@@ -14,7 +14,7 @@ class GpsDataPoints:
         self.altitude = np.array([p.altitude for p in points])
         self.speed = np.array([p.speed for p in points])
         self.power = np.array([p.power for p in points], dtype='float64')
-        self.time = np.array([p.time for p in points], dtype='datetime64[s]')
+        self.time = np.array([p.time for p in points], dtype='datetime64[ms]')
 
     def clone(self):
         points = GpsDataPoints(self.get_points_list())

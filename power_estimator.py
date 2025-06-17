@@ -61,7 +61,7 @@ def main():
         filter.apply_filter(points=points)
 
     optim = IterativeOptimizer()
-    points = optim.optimize_power_curve(points, 100)
+    points = optim.optimize_power_curve(points, 140)
     points.power = np.zeros_like(points.power)
 
     modifyers: List[Power.PowerModifyer] = [
@@ -98,13 +98,18 @@ def main():
     energy_kcal = energy_joule/4184
     print(f"Total burned energy: {energy_kcal:.0f} kcal")
 
-    avg_speed = np.average(points.speed)
-    print(f"Avg speed: {(avg_speed*3.6):.2f}km/h")
+
+
+    p_list = points.get_points_list()
+    total_length = sum([p0.meter_distance_to(p1) for p1, p0 in zip(p_list[1:], p_list[:-1])])
+    print(f"Total length: {(total_length*1E-3):.2f}km")
 
     total_time = points.time[-1]-points.time[0]
-    
-    print(f"Total time: {total_time / np.timedelta64(1, 'h'):.2f}h")
+    total_time_hours = total_time / np.timedelta64(1, 'h')
+    print(f"Total time: {total_time_hours:.2f}h")
 
+    avg_speed = np.average(points.speed)
+    print(f"Avg speed: {(total_length*1E-3/total_time_hours):.2f}km/h")
 
 if __name__ == "__main__":
     main()

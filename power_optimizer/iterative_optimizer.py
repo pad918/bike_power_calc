@@ -19,8 +19,9 @@ class IterativeOptimizer(Optimizer):
             p0 = points.get_point(i-1)
             p1 = points.get_point(i)
             single = GpsDataPoints([p0, p1])
+            single.power = np.zeros_like(single.power)
             modifyers = [
-                pm.AccelerationModifyer(MASS),
+                #pm.AccelerationModifyer(MASS),
                 pm.ElevationModifyer(MASS),
                 pm.DragModifyer(cwa=0.6, use_weather_data=False),
                 pm.RollingForceModifyer(cr=0.007, mass_kg=MASS),
@@ -28,9 +29,12 @@ class IterativeOptimizer(Optimizer):
             ]
             for m in modifyers:
                 m.modify_power_at_points(single)
+            single.power *= -1
+            total_power = single.power[0] + p0.power
+
             # Calculate current acceleration
             last_speed = max(2, p0.speed)
-            force = single.power[0] / last_speed
+            force = total_power / last_speed
             acceleration = max(-1, min(force / MASS, 1))
             next_point_dist = max(1, p0.meter_distance_to(p1))
 
