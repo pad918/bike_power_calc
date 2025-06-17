@@ -2,6 +2,7 @@
 *__pycache__/
 *.pyc
 *.gpx
+*.gz
 
 # Temp files
 tmp.html

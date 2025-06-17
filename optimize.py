@@ -41,6 +41,7 @@ def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
+    arg_parser.add_argument("power", help="Target power for the optimizer", type=float)
     arg_parser.add_argument("--drivetrain_efficiency", 
                             help="Efficency of the drivetrain, typicall 0.95", 
                             type=float,
@@ -57,6 +58,10 @@ def main():
     ]
     for filter in filters:
         filter.apply_filter(points=points)
+
+    optim = IterativeOptimizer()
+    points = optim.optimize_power_curve(points, args.power)
+    points.power = np.zeros_like(points.power)
 
     modifyers: List[Power.PowerModifyer] = [
         Power.AccelerationModifyer(args.mass),
@@ -95,7 +100,8 @@ def main():
     print(f"Total length: {(points.total_length()*1E-3):.2f}km")
     print(f"Total time: {points.total_time_hours():.2f}h")
     print(f"Avg speed: {(points.average_speed_kmph()):.2f}km/h")
-    np.savetxt("saved.gz", np.maximum(points.power, 0))
+
+    
 
 if __name__ == "__main__":
     main()
