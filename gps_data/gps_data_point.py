@@ -60,8 +60,8 @@ class GpsDataPoint:
     
     @speed.setter
     def speed(self, val):
-        if(not val in OpenRange(-30, 30)):
-            raise BaseException(f"Speed must be in m/s, {val} is most likely an other using another unit")
+        if(not val in OpenRange(-30, 100)):
+            raise BaseException(f"Speed must be in m/s, {val} most likely not m/s")
         self._speed = val
 
     @property
@@ -70,8 +70,8 @@ class GpsDataPoint:
     
     @time.setter
     def time(self, val):
-        if(not type(val) == datetime.datetime):
-            raise BaseException(f"Can only set time to time type, not: {type(val)}")
+        #if(not type(val) == datetime.datetime):
+        #    raise BaseException(f"Can only set time to time type, not: {type(val)}")
         self._time = val
 
     @property

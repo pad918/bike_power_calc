@@ -9,6 +9,9 @@ import power_modifyer as Power
 from gps_data import GpsDataFilter
 from gps_data import GpsDataLowpassFilter
 
+# Power optimizer
+from power_optimizer import IterativeOptimizer
+
 from typing import List
 import plotly.graph_objects as go
 import folium
@@ -36,6 +39,7 @@ def create_power_map_folium(points:GpsDataPoints):
 
 def main():
     import sys
+    sys.argv.extend(["Drevviken1.gpx", "90"])
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
@@ -56,6 +60,10 @@ def main():
     for filter in filters:
         filter.apply_filter(points=points)
 
+    optim = IterativeOptimizer()
+    points = optim.optimize_power_curve(points, 100)
+    points.power = np.zeros_like(points.power)
+
     modifyers: List[Power.PowerModifyer] = [
         Power.AccelerationModifyer(args.mass),
         Power.ElevationModifyer(args.mass),
@@ -67,6 +75,8 @@ def main():
     # Apply modifyers
     for modifyer in modifyers:
         modifyer.modify_power_at_points(points)
+
+    
 
     # Draw graphs
     fig = go.Figure(data=[
@@ -87,6 +97,13 @@ def main():
     energy_joule = np.sum(np.clip(points.power[:-1], 0, 10000) * ((points.time[1:]-points.time[:-1])/np.timedelta64(1, 's')))
     energy_kcal = energy_joule/4184
     print(f"Total burned energy: {energy_kcal:.0f} kcal")
+
+    avg_speed = np.average(points.speed)
+    print(f"Avg speed: {(avg_speed*3.6):.2f}km/h")
+
+    total_time = points.time[-1]-points.time[0]
+    
+    print(f"Total time: {total_time / np.timedelta64(1, 'h'):.2f}h")
 
 
 if __name__ == "__main__":
