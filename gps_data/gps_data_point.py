@@ -14,7 +14,9 @@ class GpsDataPoint:
         self.power = 0
 
     def meter_distance_to(self, other):
-        return geodesic((self.latitude, self.longitude), (other.latitude, other.longitude)).m
+        dist_2d = geodesic((self.latitude, self.longitude), (other.latitude, other.longitude)).m
+        dist_3d = (dist_2d**2 + (self.altitude-other.altitude)**2)**0.5
+        return dist_3d
 
     def get_bearing_to(self, other):
         p1 = Point(self.latitude, self.longitude)
