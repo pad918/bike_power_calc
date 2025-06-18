@@ -18,6 +18,9 @@ class IterativeOptimizer(Optimizer):
         speed = 0
         MASS = 90
         EFF = 0.95
+        time_points = np.linspace(0, math.sqrt(20), 100)
+        time_points = time_points ** 2
+        
         for i in range(1, len(points.power)):
             p0 = points.get_point(i-1)
             p1 = points.get_point(i)
@@ -35,23 +38,34 @@ class IterativeOptimizer(Optimizer):
             single.power *= -1
             total_power = single.power[0] + p0.power
 
-            # Calculate current acceleration
-            last_speed = max(2, p0.speed)
-            force = total_power / last_speed
-            acceleration = max(-3, min(force / MASS, 3))
-            next_point_dist = max(1, p0.meter_distance_to(p1))
+            # Convert to the same variable names as in the equation
+            v0 = max(2, p0.speed)
+            d0 = max(1, min(20, p0.meter_distance_to(p1)))
+            m = MASS
+            p = total_power
+            def v(t): return (v0**2+2*p*t/m)**0.5 if v0**2+2*p*t/m>0 else 0 
+            def d(t): return ((v0+v(t))/2)*t # LINEAR APPROXIMATION (VERY INCORRECT AT LOW SPEEDS!)
+            # Find a close approximative time to reach the next point numerically
+            
+            d_vec = np.vectorize(d)
+            distances = d_vec(time_points)
+            
+            try:
+                index = np.argmax(distances > d0)
+                if(index<=0):
+                    raise ValueError("d0 can not be negative!")
+                
+                # Do a linear interpolation between the two points
+                val1 = distances[index]
+                val0 = distances[index-1]
 
-            # Solve polynomial to get time to next point
-            a = acceleration
-            b = last_speed
-            c = -next_point_dist
-            if(a<=0 or (b**2-4*a*c)<0):
-                # if not possible to calculate, just assume same speed
-                time = next_point_dist / last_speed
-            else:
-                time = -(b/(2*a)) + (b**2-4*a*c)**0.5/(2*a)
+                part = (d0-val0)/(val1-val0)
+                time = (time_points[index-1]+part)
+            except ValueError as e:
+                print("UNHANDELED EXCEPTION!")
+            
             time = max(0.25, min(time, 10))
-            speed_at_next_point = max(0, last_speed + time * acceleration) # NO NEGATIVE SPEEDS
+            speed_at_next_point = max(0, v(time)) # NO NEGATIVE SPEEDS
             time_stamp = p0.time + datetime.timedelta(seconds=time)
             
             # Update values
@@ -81,7 +95,7 @@ class IterativeOptimizer(Optimizer):
 
     def get_initial_solution(self, points:GpsDataPoints, avg_power):
         # Use avg power for all points
-        points.power = np.loadtxt("saved.gz") #np.full_like(points.power, avg_power)
+        points.power = np.full_like(points.power, avg_power) #np.loadtxt("saved.gz")
         self.set_speed_and_time_from_power(points)
 
     def optimize_power_curve(self, points:GpsDataPoints, avg_power):
@@ -108,7 +122,7 @@ class IterativeOptimizer(Optimizer):
         init_score = self.score_solution(optimized_points, avg_power)
         print(f"Initial score: {init_score:.4f}")
         best_score = init_score
-        for i in range(int(200)):
+        for i in range(int(20)):
             if (i%1000==0):
                 print(f"Saving at {i}")
                 np.savetxt(f"save_{i}.gz", best_powers)

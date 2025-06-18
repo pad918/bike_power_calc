@@ -38,6 +38,7 @@ def create_power_map_folium(points:GpsDataPoints):
     webbrowser.open(output_html_file)
 
 def main():
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
     arg_parser.add_argument("mass", help="Total mass of the bike + rider in kg", type=float)
@@ -95,7 +96,8 @@ def main():
     #energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
     energy_joule = np.sum(np.clip(points.power[:-1], 0, 10000) * ((points.time[1:]-points.time[:-1])/np.timedelta64(1, 's')))
     energy_kcal = energy_joule/4184
-    print(f"Total burned energy: {energy_kcal:.0f} kcal")
+    muscle_energy_kcal = energy_kcal / 0.25
+    print(f"Total burned energy: {muscle_energy_kcal:.0f} kcal")
 
     print(f"Total length: {(points.total_length()*1E-3):.2f}km")
     print(f"Total time: {points.total_time_hours():.2f}h")
