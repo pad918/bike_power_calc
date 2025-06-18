@@ -9,9 +9,6 @@ import power_modifyer as Power
 from gps_data import GpsDataFilter
 from gps_data import GpsDataLowpassFilter
 
-# Power optimizer
-from power_optimizer import IterativeOptimizer
-
 from typing import List
 import plotly.graph_objects as go
 import folium
