@@ -1,2 +1,2 @@
 from .optimizer import Optimizer
-from .iterative_optimizer import IterativeOptimizer
+from .speed_optimizer import SpeedOptimizer

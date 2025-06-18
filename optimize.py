@@ -10,7 +10,7 @@ from gps_data import GpsDataFilter
 from gps_data import GpsDataLowpassFilter
 
 # Power optimizer
-from power_optimizer import IterativeOptimizer
+from power_optimizer import SpeedOptimizer
 
 from typing import List
 import plotly.graph_objects as go
@@ -60,7 +60,7 @@ def main():
     for filter in filters:
         filter.apply_filter(points=points)
 
-    optim = IterativeOptimizer()
+    optim = SpeedOptimizer(args.mass, args.drivetrain_efficiency, 100)
     points = optim.optimize_power_curve(points, args.power)
     points.power = np.zeros_like(points.power)
 
@@ -75,8 +75,6 @@ def main():
     # Apply modifyers
     for modifyer in modifyers:
         modifyer.modify_power_at_points(points)
-
-    
 
     # Draw graphs
     fig = go.Figure(data=[
@@ -93,7 +91,6 @@ def main():
     avg_power = points.average_power()
     print(f"AVG power: {avg_power:.0f} w")
     
-    #energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
     energy_joule = np.sum(np.clip(points.power[:-1], 0, 10000) * ((points.time[1:]-points.time[:-1])/np.timedelta64(1, 's')))
     energy_kcal = energy_joule/4184
     muscle_energy_kcal = energy_kcal / 0.25
