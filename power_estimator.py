@@ -24,7 +24,7 @@ def create_power_map_folium(points:GpsDataPoints):
     m = folium.Map(location=[center_latitide, center_longitude], zoom_start=13, tiles='OpenStreetMap')
     folium.ColorLine(
         positions=list(zip(points.latitude, points.longitude)),
-        colors=np.clip(points.speed, 0, 400), # Clip to make colors stand out more
+        colors=np.clip(points.power, 0, 400), # Clip to make colors stand out more
         colormap=["b", "y", "r"],   
         weight=8,        
         opacity=0.7      

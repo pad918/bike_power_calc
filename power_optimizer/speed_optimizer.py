@@ -56,7 +56,7 @@ class SpeedOptimizer(Optimizer):
     
     def create_mutated_speeds(self, speeds:np.array, min_power, max_power):
         speed_clone = speeds.copy()
-        l = random.randint(1, min(len(speed_clone), 40))
+        l = random.randint(1, min(len(speed_clone), 100))
         start_index = random.randint(0, len(speed_clone)-l-1)
 
         delta_speed = random.uniform(min_power, max_power)
