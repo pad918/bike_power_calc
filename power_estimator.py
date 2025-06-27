@@ -1,5 +1,6 @@
 import argparse
 from gps_data.gpx_loader import GPXLoader
+from gps_data import RawDataLoader
 from gps_data.gps_data_points import GpsDataPoints
 
 # Power modifyers
@@ -46,7 +47,12 @@ def main():
     args = arg_parser.parse_args()
 
     # Load gps data
-    points = GpsDataPoints(GPXLoader(args.filename).load())
+    file_extension = args.filename.split(".")[-1] 
+    if(file_extension == "gpx"):
+        loader = GPXLoader(args.filename)
+    elif(file_extension == "json"):
+        loader = RawDataLoader(args.filename)
+    points = GpsDataPoints(loader.load())
 
     # Apply filters to data
     filters: List[GpsDataFilter] = [
@@ -58,8 +64,8 @@ def main():
     modifyers: List[Power.PowerModifyer] = [
         Power.AccelerationModifyer(args.mass),
         Power.ElevationModifyer(args.mass),
-        Power.DragModifyer(cwa=0.6, use_weather_data=False),
-        Power.RollingForceModifyer(cr=0.007, mass_kg=args.mass),
+        Power.DragModifyer(cwa=0.56370, use_weather_data=False), #0.56370, cr: 0.00356
+        Power.RollingForceModifyer(cr=0.00356, mass_kg=args.mass),
         Power.DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]
 
