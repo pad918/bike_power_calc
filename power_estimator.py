@@ -16,7 +16,7 @@ import folium
 import webbrowser
 import numpy as np
 
-def create_power_map_folium(points:GpsDataPoints):
+def create_and_open_power_map_folium(points:GpsDataPoints):
     if (len(points.power)==0):
         return
     
@@ -35,6 +35,12 @@ def create_power_map_folium(points:GpsDataPoints):
     m.save(output_html_file)
     webbrowser.open(output_html_file)
 
+def get_total_burned_energy_kcal(dataPoints:GpsDataPoints, muscleEfficiency:float) -> float:
+    energy_joule = np.sum(np.clip(dataPoints.power[:-1], 0, 10000) * ((dataPoints.time[1:]-dataPoints.time[:-1])/np.timedelta64(1, 's')))
+    energy_kcal = energy_joule/4184
+    muscle_energy_kcal = energy_kcal / muscleEfficiency
+    return muscle_energy_kcal
+
 def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("filename", help="File to load datapoints from")
@@ -43,6 +49,11 @@ def main():
                             help="Efficency of the drivetrain, typicall 0.95", 
                             type=float,
                             default=0.95,
+                            required=False)
+    arg_parser.add_argument("--muscle_efficency", 
+                            help="Total muscle efficiency. Default 20%", 
+                            type=float,
+                            default=0.2,
                             required=False)
     args = arg_parser.parse_args()
 
@@ -73,7 +84,23 @@ def main():
     for modifyer in modifyers:
         modifyer.modify_power_at_points(points)
 
+
+    # Calculate and print stats
+    avg_power = points.average_power()
     
+    
+    muscle_energy_kcal = get_total_burned_energy_kcal(points, args.muscle_efficency)
+    print(f"""
+===================== STATS =====================
+|    Total burned energy: {muscle_energy_kcal:.0f} kcal
+|    Total distance:      {(points.total_length()*1E-3):.2f} km
+|    Total time:          {points.total_time_hours():.2f} h
+|    Avg speed:           {(points.average_speed_kmph()):.2f} km/h
+|    AVG power:           {avg_power:.0f} w
+=================================================
+""")
+
+    np.savetxt("saved.gz", np.maximum(points.power, 0))
 
     # Draw graphs
     fig = go.Figure(data=[
@@ -84,22 +111,7 @@ def main():
         )
     fig.show()
 
-    create_power_map_folium(points=points)
-
-    # Calculate and print stats
-    avg_power = points.average_power()
-    print(f"AVG power: {avg_power:.0f} w")
-    
-    #energy_joule = sum(max(0, l.power) * (n.time-l.time).total_seconds() for l, n in zip(points[:-1], points[1:]))
-    energy_joule = np.sum(np.clip(points.power[:-1], 0, 10000) * ((points.time[1:]-points.time[:-1])/np.timedelta64(1, 's')))
-    energy_kcal = energy_joule/4184
-    muscle_energy_kcal = energy_kcal / 0.25
-    print(f"Total burned energy: {muscle_energy_kcal:.0f} kcal")
-
-    print(f"Total length: {(points.total_length()*1E-3):.2f}km")
-    print(f"Total time: {points.total_time_hours():.2f}h")
-    print(f"Avg speed: {(points.average_speed_kmph()):.2f}km/h")
-    np.savetxt("saved.gz", np.maximum(points.power, 0))
+    create_and_open_power_map_folium(points=points)
 
 if __name__ == "__main__":
     main()
