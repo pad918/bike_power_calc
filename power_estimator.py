@@ -75,8 +75,8 @@ def main():
     modifyers: List[Power.PowerModifyer] = [
         Power.AccelerationModifyer(args.mass),
         Power.ElevationModifyer(args.mass),
-        Power.DragModifyer(cwa=0.56370, use_weather_data=False), #0.56370, cr: 0.00356
-        Power.RollingForceModifyer(cr=0.00356, mass_kg=args.mass),
+        Power.DragModifyer(cwa=0.32, use_weather_data=False), #0.56370, cr: 0.00356 <== Measured values for old bike
+        Power.RollingForceModifyer(cr=0.004, mass_kg=args.mass),
         Power.DragtrainEfficencyModifyer(efficency=args.drivetrain_efficiency) # MUST BE LAST
     ]
 

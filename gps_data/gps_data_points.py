@@ -53,7 +53,7 @@ class GpsDataPoints:
         avg_power = power_seconds / total_seconds
         return avg_power
 
-    def get_points_list(self):
+    def get_points_list(self) -> list[GpsDataPoint]:
         l = []
         for i in range(len(self.longitude)):
             point = GpsDataPoint(
