@@ -72,14 +72,13 @@ def generate_fake_data(heights:list[float]) -> GpsDataPoints:
     mass = 100
     cwa = 0.35
     cr = 0.004
-    speed = 10
+    speed = 0
     gps_points = [GpsDataPoint(0, 0, heights[0], 0, speed)]
     drag_mod = Power.DragModifyer(cwa=cwa, use_weather_data=False)
     rolling_mod = Power.RollingForceModifyer(cr=cr, mass_kg=mass)
     distance_traveled = 0
     dt = 0.1
     for i in range(len(heights)-1):
-        # JUST COAST DOWN
         elevation_energy_gain = (heights[i]-heights[i+1])*mass*9.82
         speed = get_new_vel(mass, speed, elevation_energy_gain)
         distance_traveled += speed * dt
@@ -92,12 +91,12 @@ def generate_fake_data(heights:list[float]) -> GpsDataPoints:
         rolling_mod.modify_power_at_points(power_gps_points)
         rolling_power = power_gps_points.power[-1]
         speed = get_new_vel(mass, speed, -(rolling_power+drag_power)*dt)
-        print(f"""
-Elevation energy:   {elevation_energy_gain}
-Drag energy:        {drag_power*dt}
-Rolling energy:     {rolling_power*dt}""")
+        #print(f"""
+#Elevation energy:   {elevation_energy_gain}
+#Drag energy:        {drag_power*dt}
+#Rolling energy:     {rolling_power*dt}""")
     
-    return GpsDataPoints(gps_points[2:])
+    return GpsDataPoints(gps_points[2::10])
 
 def generate_raw_json(gps_data:GpsDataPoints):
     data = []
@@ -125,7 +124,7 @@ def get_heights1(seconds:int):
 
 def main():
     
-    fake_data = generate_fake_data(get_heights1(500))
+    fake_data = generate_fake_data(get_heights1(200))
     print("SPEEDS: ", fake_data.speed)
     generate_raw_json(fake_data)
     pass

@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import CubicSpline
 from gps_data.gps_data_point import GpsDataPoint
 from typing import List
 
@@ -19,6 +20,26 @@ class GpsDataPoints:
     def clone(self):
         points = GpsDataPoints(self.get_points_list())
         return points
+
+    def upsample(self, target_hz: int = 10):
+
+        time_sec = (self.time - self.time[0]) / np.timedelta64(1, 's')
+        
+        _, unique_idx = np.unique(time_sec, return_index=True)
+        unique_idx = np.sort(unique_idx) # Keep them in chronological order
+        
+        clean_time_sec = time_sec[unique_idx]
+        
+        step_size = 1.0 / target_hz
+        new_time_sec = np.arange(clean_time_sec[0], clean_time_sec[-1], step_size)
+        
+        self.longitude = CubicSpline(clean_time_sec, self.longitude[unique_idx])(new_time_sec)
+        self.latitude = CubicSpline(clean_time_sec, self.latitude[unique_idx])(new_time_sec)
+        self.altitude = CubicSpline(clean_time_sec, self.altitude[unique_idx])(new_time_sec)
+        self.speed = CubicSpline(clean_time_sec, self.speed[unique_idx])(new_time_sec)
+        self.power = CubicSpline(clean_time_sec, self.power[unique_idx])(new_time_sec)
+        
+        self.time = self.time[0] + (new_time_sec * 1000).astype('timedelta64[ms]')
 
     def get_point(self, i):
         if i>= len(self.power):
